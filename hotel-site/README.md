@@ -40,11 +40,24 @@ Both Vercel and Netlify let you add a custom domain from their dashboard
 under Project/Site Settings → Domains — just point your domain's DNS at the
 records they give you.
 
+## Availability calendar
+
+Each "Check Dates" / "Check Dates & Book" button opens a calendar for that
+room, with already-booked dates greyed out and struck through. Right now
+the booked dates are **demo data** — a hardcoded list in `js/booking.js`
+(`DEMO_UNAVAILABLE_DATES`), so you can see the feature working before
+Firebase is connected.
+
+Once Firestore is set up (see below), replace `getUnavailableDates()` in
+`js/booking.js` with a real query — the exact code and comments for this
+are already written directly above that function in the file.
+
 ## Wiring up the booking system (required for live bookings)
 
-The booking modal (guest details → account creation → payment) is built and
-functional in the front end, but needs two things connected before it can
-actually create accounts or take payments:
+The booking modal (select dates → guest details → account creation →
+payment) is built and functional in the front end, but needs two things
+connected before it can actually create accounts, take payments, or show
+real availability:
 
 ### 1. Firebase (accounts + storing bookings)
 1. Create a project at https://console.firebase.google.com

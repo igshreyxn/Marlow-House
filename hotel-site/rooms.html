@@ -44,7 +44,7 @@
           <h3>The Standard</h3>
           <p>Warm, quiet, and unfussy — a real bed, good lighting, and reliable Wi-Fi. Ideal for one or two night stays. Sleeps 2.</p>
           <span class="price">From ₹6,500 / night</span>
-          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+          <button class="btn btn-primary" data-open-booking data-room-id="standard">Check Dates & Book</button>
         </div>
       </article>
       <article class="room-card reveal">
@@ -53,7 +53,7 @@
           <h3>The Deluxe</h3>
           <p>More room to spread out, a proper desk for work, and a view worth waking up to. Sleeps 2–3.</p>
           <span class="price">From ₹9,200 / night</span>
-          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+          <button class="btn btn-primary" data-open-booking data-room-id="deluxe">Check Dates & Book</button>
         </div>
       </article>
       <article class="room-card reveal">
@@ -62,7 +62,7 @@
           <h3>The Suite</h3>
           <p>A separate sitting area, a deep soak tub, and the kind of quiet you notice. Best for families or longer stays. Sleeps 4.</p>
           <span class="price">From ₹14,800 / night</span>
-          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+          <button class="btn btn-primary" data-open-booking data-room-id="suite">Check Dates & Book</button>
         </div>
       </article>
     </div>
@@ -80,11 +80,51 @@
 
 <!-- Booking Modal (shared markup — see index.html for full commented setup notes) -->
 <div class="modal-overlay">
-  <div class="modal">
+  <div class="modal modal-wide">
     <button class="modal-close" aria-label="Close">×</button>
-    <div class="modal-step active" data-step="details">
+
+    <div class="modal-step active" data-step="dates">
+      <h2>Select your dates</h2>
+      <p class="step-label">Step 1 of 4 — Check real availability</p>
+
+      <div class="field">
+        <label for="room-select">Room</label>
+        <select id="room-select">
+          <option value="standard">The Standard — ₹6,500 / night</option>
+          <option value="deluxe">The Deluxe — ₹9,200 / night</option>
+          <option value="suite">The Suite — ₹14,800 / night</option>
+        </select>
+      </div>
+
+      <div class="calendar-widget">
+        <div class="calendar-nav">
+          <button type="button" class="cal-prev" aria-label="Previous month">←</button>
+          <span class="cal-month-label"></span>
+          <button type="button" class="cal-next" aria-label="Next month">→</button>
+        </div>
+        <div class="calendar-weekdays">
+          <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+        </div>
+        <div class="calendar-grid"></div>
+        <div class="calendar-legend">
+          <span><i class="dot dot-available"></i>Available</span>
+          <span><i class="dot dot-selected"></i>Selected</span>
+          <span><i class="dot dot-unavailable"></i>Booked</span>
+        </div>
+      </div>
+
+      <div class="calendar-summary">
+        <div><strong class="sum-checkin">Check-in: —</strong></div>
+        <div><strong class="sum-checkout">Check-out: —</strong></div>
+        <div><strong class="sum-total">Total: —</strong></div>
+      </div>
+
+      <button type="button" id="dates-continue" class="btn btn-primary" disabled>Continue</button>
+    </div>
+
+    <div class="modal-step" data-step="details">
       <h2>Your details</h2>
-      <p class="step-label">Step 1 of 3 — Guest information</p>
+      <p class="step-label">Step 2 of 4 — Guest information</p>
       <form id="booking-details-form">
         <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
         <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" required></div>
@@ -92,9 +132,10 @@
         <button type="submit" class="btn btn-primary">Continue</button>
       </form>
     </div>
+
     <div class="modal-step" data-step="account">
       <h2>Create your account</h2>
-      <p class="step-label">Step 2 of 3 — Needed to manage or cancel this booking later</p>
+      <p class="step-label">Step 3 of 4 — Needed to manage or cancel this booking later</p>
       <form id="booking-account-form">
         <div class="field"><label for="account-email">Email</label><input type="email" id="account-email" name="email" required></div>
         <div class="field"><label for="account-password">Password</label><input type="password" id="account-password" name="password" minlength="8" required></div>
@@ -102,12 +143,15 @@
         <button type="submit" class="btn btn-primary">Create Account & Continue</button>
       </form>
     </div>
+
     <div class="modal-step" data-step="payment">
       <h2>Payment</h2>
-      <p class="step-label">Step 3 of 3 — Secure checkout</p>
+      <p class="step-label">Step 4 of 4 — Secure checkout</p>
+      <div class="payment-summary" id="payment-summary"></div>
       <p>Connect your payment gateway here. By confirming, you agree to our <a href="cancellation-policy.html" style="text-decoration:underline">Cancellation & Refund Policy</a>.</p>
       <button id="confirm-payment" class="btn btn-primary">Confirm & Pay</button>
     </div>
+
     <div class="modal-step" data-step="confirmation">
       <h2>You're booked</h2>
       <p>A confirmation has been sent to your email, including your cancellation window.</p>
