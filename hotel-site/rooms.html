@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rooms — Marlow House</title>
+<meta name="description" content="Explore rooms and suites at Marlow House — the Standard, the Deluxe, and the Suite, each designed for actually resting." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="wordmark">Marlow House</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="rooms.html">Rooms</a>
+      <a href="index.html#dining">Dining</a>
+      <a href="index.html#experience">Experience</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-primary" data-open-booking>Book Now</button>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:var(--space-xl)">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h1 style="font-family:var(--font-display);font-size:var(--step-3)">Rooms & Suites</h1>
+      <p>Every room is designed around one idea: you should leave feeling better than when you arrived.</p>
+    </div>
+
+    <div class="room-grid">
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80" alt="The Standard room"></div>
+        <div class="room-body">
+          <h3>The Standard</h3>
+          <p>Warm, quiet, and unfussy — a real bed, good lighting, and reliable Wi-Fi. Ideal for one or two night stays. Sleeps 2.</p>
+          <span class="price">From ₹6,500 / night</span>
+          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+        </div>
+      </article>
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="The Deluxe room"></div>
+        <div class="room-body">
+          <h3>The Deluxe</h3>
+          <p>More room to spread out, a proper desk for work, and a view worth waking up to. Sleeps 2–3.</p>
+          <span class="price">From ₹9,200 / night</span>
+          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+        </div>
+      </article>
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=800&q=80" alt="The Suite"></div>
+        <div class="room-body">
+          <h3>The Suite</h3>
+          <p>A separate sitting area, a deep soak tub, and the kind of quiet you notice. Best for families or longer stays. Sleeps 4.</p>
+          <span class="price">From ₹14,800 / night</span>
+          <button class="btn btn-primary" data-open-booking>Book This Room</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-bottom">
+      <span>© 2026 Marlow House</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Booking Modal (shared markup — see index.html for full commented setup notes) -->
+<div class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" aria-label="Close">×</button>
+    <div class="modal-step active" data-step="details">
+      <h2>Your details</h2>
+      <p class="step-label">Step 1 of 3 — Guest information</p>
+      <form id="booking-details-form">
+        <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
+        <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" required></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <button type="submit" class="btn btn-primary">Continue</button>
+      </form>
+    </div>
+    <div class="modal-step" data-step="account">
+      <h2>Create your account</h2>
+      <p class="step-label">Step 2 of 3 — Needed to manage or cancel this booking later</p>
+      <form id="booking-account-form">
+        <div class="field"><label for="account-email">Email</label><input type="email" id="account-email" name="email" required></div>
+        <div class="field"><label for="account-password">Password</label><input type="password" id="account-password" name="password" minlength="8" required></div>
+        <p class="form-error">Password must be at least 8 characters.</p>
+        <button type="submit" class="btn btn-primary">Create Account & Continue</button>
+      </form>
+    </div>
+    <div class="modal-step" data-step="payment">
+      <h2>Payment</h2>
+      <p class="step-label">Step 3 of 3 — Secure checkout</p>
+      <p>Connect your payment gateway here. By confirming, you agree to our <a href="cancellation-policy.html" style="text-decoration:underline">Cancellation & Refund Policy</a>.</p>
+      <button id="confirm-payment" class="btn btn-primary">Confirm & Pay</button>
+    </div>
+    <div class="modal-step" data-step="confirmation">
+      <h2>You're booked</h2>
+      <p>A confirmation has been sent to your email, including your cancellation window.</p>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/scroll-reveal.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

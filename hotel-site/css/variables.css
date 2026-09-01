@@ -1,0 +1,40 @@
+:root {
+  /* Color */
+  --ink: #2B2A28;
+  --ink-soft: #55524C;
+  --parchment: #EDE6D8;
+  --warm-white: #FAF7F1;
+  --moss: #4B5D45;
+  --moss-dark: #384433;
+  --brass: #A9834F;
+  --line: rgba(43, 42, 40, 0.14);
+  --overlay: rgba(20, 20, 18, 0.38);
+
+  /* Type */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.95rem);
+  --step-0: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+  --step-2: clamp(1.7rem, 1.5rem + 0.8vw, 2.25rem);
+  --step-3: clamp(2.3rem, 1.9rem + 1.6vw, 3.4rem);
+  --step-4: clamp(3rem, 2.4rem + 2.4vw, 4.6rem);
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.75rem;
+  --space-lg: 3rem;
+  --space-xl: 5rem;
+  --space-2xl: 8rem;
+
+  --radius: 4px;
+  --max-width: 1280px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Intentionally not switching to dark mode automatically —
+     the boutique warmth palette is the brand, not a light theme default. */
+}

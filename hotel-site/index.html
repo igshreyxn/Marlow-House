@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Marlow House — A Boutique Hotel That Remembers You</title>
+<meta name="description" content="Marlow House is a boutique hotel offering thoughtfully designed rooms, dining worth staying in for, and hospitality that feels personal. Check availability and book direct." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+
+<!--
+  Firebase SDK (add before js/booking.js, once you have a project config):
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+-->
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="wordmark">Marlow House</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="rooms.html">Rooms</a>
+      <a href="index.html#dining">Dining</a>
+      <a href="index.html#experience">Experience</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-primary" data-open-booking>Book Now</button>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-media">
+    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80" alt="" />
+  </div>
+  <div class="wrap hero-content">
+    <h1>Stay somewhere that remembers you're a guest, not a room number.</h1>
+    <p class="subline">Thoughtfully designed rooms, honest hospitality, and a location that puts everything worth seeing within reach — whether you're here for one night or seven.</p>
+  </div>
+</section>
+
+<div class="wrap availability">
+  <form id="availability-form">
+    <div class="field">
+      <label for="checkin">Check-in</label>
+      <input type="date" id="checkin" name="checkin" required>
+    </div>
+    <div class="field">
+      <label for="checkout">Check-out</label>
+      <input type="date" id="checkout" name="checkout" required>
+    </div>
+    <div class="field">
+      <label for="guests">Guests</label>
+      <select id="guests" name="guests">
+        <option>1 guest</option>
+        <option selected>2 guests</option>
+        <option>3 guests</option>
+        <option>4+ guests</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-primary" data-open-booking>Check Availability</button>
+  </form>
+</div>
+
+<div class="wrap trust-bar">
+  <div class="stat"><strong>4.8 / 5</strong><span>Average guest rating</span></div>
+  <div class="stat"><strong>1,200+</strong><span>Verified reviews</span></div>
+  <div class="stat"><strong>62%</strong><span>Guests who return within a year</span></div>
+</div>
+
+<section class="section" id="rooms">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Rooms built for actually resting</h2>
+      <p>Every room is designed around one idea: you should leave feeling better than when you arrived.</p>
+    </div>
+    <div class="room-grid">
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80" alt="Standard room at Marlow House"></div>
+        <div class="room-body">
+          <h3>The Standard</h3>
+          <p>Warm, quiet, and unfussy — everything a one or two night stay actually needs.</p>
+          <span class="price">From ₹6,500 / night</span>
+          <a href="rooms.html" class="btn btn-ghost">View Room</a>
+        </div>
+      </article>
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Deluxe room at Marlow House"></div>
+        <div class="room-body">
+          <h3>The Deluxe</h3>
+          <p>More room to spread out, a proper desk, and a view worth waking up to.</p>
+          <span class="price">From ₹9,200 / night</span>
+          <a href="rooms.html" class="btn btn-ghost">View Room</a>
+        </div>
+      </article>
+      <article class="room-card reveal">
+        <div class="room-media"><img src="https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=800&q=80" alt="Suite at Marlow House"></div>
+        <div class="room-body">
+          <h3>The Suite</h3>
+          <p>A separate sitting area, a deep soak tub, and the kind of quiet you notice.</p>
+          <span class="price">From ₹14,800 / night</span>
+          <a href="rooms.html" class="btn btn-ghost">View Room</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="dining">
+  <div class="wrap">
+    <div class="benefit-row reveal">
+      <div class="benefit-media"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80" alt="Dining room at Marlow House"></div>
+      <div class="benefit-text">
+        <h3>Food worth staying in for</h3>
+        <p>Skip the search for somewhere to eat. Our kitchen serves food people drive across town for, right downstairs — breakfast that starts the day properly, and an evening menu that makes room service feel unnecessary.</p>
+      </div>
+    </div>
+    <div class="benefit-row flip reveal" id="experience">
+      <div class="benefit-media"><img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80" alt="Lounge area at Marlow House"></div>
+      <div class="benefit-text">
+        <h3>Everything else, sorted</h3>
+        <p>Fast, reliable Wi-Fi for the work you can't skip. A lounge to unwind in after. A team that answers the phone like they mean it. The small things that decide whether a stay is fine, or actually good.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section proof-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Guests keep saying the same thing</h2>
+    </div>
+    <div class="testimonial-track">
+      <div class="testimonial reveal">
+        <p>"Didn't feel like a hotel — felt like somewhere we actually wanted to be."</p>
+        <cite>— Priya M., stayed 3 nights</cite>
+      </div>
+      <div class="testimonial reveal">
+        <p>"Staff remembered our names on day two. Small thing, but it stuck with us."</p>
+        <cite>— Arjun & Divya</cite>
+      </div>
+      <div class="testimonial reveal">
+        <p>"Worked from the room all week and it was actually quiet. Rare."</p>
+        <cite>— Rohan K., business travel</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="wrap objection reveal">
+    <h2>Not sure it's worth it over a bigger name?</h2>
+    <p>Boutique doesn't mean a gamble — it means someone is actually paying attention. No call centers, no cookie-cutter rooms, no forgettable stays. Just a smaller property that does the fundamentals better, and remembers you when you come back.</p>
+  </div>
+</section>
+
+<section class="cta-band" id="contact">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Your room is one click from being held.</h2>
+      <p style="color:rgba(250,247,241,0.85)">Check dates, see real rates, and book directly — no middleman, no surprise fees.</p>
+    </div>
+    <button class="btn btn-ghost" style="color:var(--warm-white);border-color:var(--warm-white)" data-open-booking>Check Availability →</button>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Marlow House</h4>
+        <a href="rooms.html">Rooms</a>
+        <a href="index.html#dining">Dining</a>
+        <a href="index.html#about">About</a>
+      </div>
+      <div>
+        <h4>Guest Info</h4>
+        <a href="cancellation-policy.html">Cancellation & Refund Policy</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a href="tel:+910000000000">+91 00000 00000</a>
+        <a href="mailto:stay@marlowhouse.example">stay@marlowhouse.example</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Marlow House</span>
+      <span>123 Garden Lane, City Name</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Booking Modal -->
+<div class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" aria-label="Close">×</button>
+
+    <div class="modal-step active" data-step="details">
+      <h2>Your details</h2>
+      <p class="step-label">Step 1 of 3 — Guest information</p>
+      <form id="booking-details-form">
+        <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
+        <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" required></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <button type="submit" class="btn btn-primary">Continue</button>
+      </form>
+    </div>
+
+    <div class="modal-step" data-step="account">
+      <h2>Create your account</h2>
+      <p class="step-label">Step 2 of 3 — Needed to manage or cancel this booking later</p>
+      <form id="booking-account-form">
+        <div class="field"><label for="account-email">Email</label><input type="email" id="account-email" name="email" required></div>
+        <div class="field"><label for="account-password">Password</label><input type="password" id="account-password" name="password" minlength="8" required></div>
+        <p class="form-error">Password must be at least 8 characters.</p>
+        <button type="submit" class="btn btn-primary">Create Account & Continue</button>
+      </form>
+    </div>
+
+    <div class="modal-step" data-step="payment">
+      <h2>Payment</h2>
+      <p class="step-label">Step 3 of 3 — Secure checkout</p>
+      <p>Connect your payment gateway here (Razorpay, Stripe, etc.). By confirming, you agree to our <a href="cancellation-policy.html" style="text-decoration:underline">Cancellation & Refund Policy</a>.</p>
+      <button id="confirm-payment" class="btn btn-primary">Confirm & Pay</button>
+    </div>
+
+    <div class="modal-step" data-step="confirmation">
+      <h2>You're booked</h2>
+      <p>A confirmation has been sent to your email, including your cancellation window. You can manage this booking anytime from your account.</p>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/scroll-reveal.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>
