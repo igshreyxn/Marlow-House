@@ -96,12 +96,25 @@ existing code saves the booking to Firestore and shows the confirmation.
 
 ## Cancellation & refund logic
 
-The refund tiers live in one place: `REFUND_POLICY` at the top of
-`js/shared.js`, alongside a `calculateRefund()` function. This must match
-the table in `cancellation-policy.html` exactly — if you change one, update
-the other. A "My Bookings" page isn't built yet; when you add one, call
-`calculateRefund(checkInDate, cancelDate, totalAmount)` to show the guest
-their refund amount before they confirm a cancellation.
+The refund tiers live in one place: `REFUND_POLICY` in `js/shared.js`,
+alongside a `calculateRefund()` function. This must match the table in
+`cancellation-policy.html` exactly — if you change one, update the other.
+
+## My Bookings page
+
+`my-bookings.html` lets a signed-in guest view their bookings and cancel
+one, showing the exact refund amount (via `calculateRefund()`) before they
+confirm.
+
+**Important:** until Firebase is actually configured in `js/shared.js`,
+this page runs in **demo mode** — it skips real sign-in and shows two
+sample bookings, so you can see and test the cancel/refund flow
+immediately. A banner on the page makes this clear. Once you add your
+Firebase config, demo mode turns off automatically: sign-in uses real
+Firebase Auth, bookings load from Firestore filtered by the signed-in
+guest's email, and cancelling updates the booking's status in Firestore.
+No code changes are needed in `js/my-bookings.js` for that switch —
+just fill in `firebaseConfig` in `js/shared.js`.
 
 ## File structure
 
@@ -110,6 +123,7 @@ hotel-site/
 ├── index.html
 ├── rooms.html
 ├── checkout.html
+├── my-bookings.html
 ├── cancellation-policy.html
 ├── css/
 │   ├── reset.css
@@ -120,7 +134,8 @@ hotel-site/
 │   ├── scroll-reveal.js
 │   ├── shared.js
 │   ├── booking.js
-│   └── checkout.js
+│   ├── checkout.js
+│   └── my-bookings.js
 └── README.md
 ```
 

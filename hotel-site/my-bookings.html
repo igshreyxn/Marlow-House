@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Bookings — Marlow House</title>
+<meta name="description" content="Sign in to view or cancel your Marlow House bookings." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+
+<!--
+  Firebase SDK (add before js/shared.js, once you have a project config):
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+-->
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="wordmark">Marlow House</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="rooms.html">Rooms</a>
+      <a href="index.html#dining">Dining</a>
+      <a href="index.html#about">About</a>
+      <a href="my-bookings.html">My Bookings</a>
+    </nav>
+    <div class="header-actions">
+      <a href="rooms.html" class="btn btn-primary">Book Now</a>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:var(--space-xl)">
+  <div class="wrap" style="max-width:640px">
+    <h1 style="font-family:var(--font-display);font-size:var(--step-3)">My Bookings</h1>
+
+    <div id="demo-notice" style="display:none;background:var(--parchment);border-radius:var(--radius);padding:var(--space-sm) var(--space-md);margin-top:var(--space-md);font-size:var(--step--1);color:var(--ink-soft)">
+      Firebase isn't connected yet, so this is showing sample bookings so you can see how the page works. Sign-in and cancellation will use real accounts once Firebase is wired up (see README).
+    </div>
+
+    <!-- Sign-in panel -->
+    <div id="signin-panel" style="max-width:420px;margin-top:var(--space-lg)">
+      <p style="color:var(--ink-soft);margin-bottom:var(--space-md)">Sign in with the account you created at checkout to view or cancel your bookings.</p>
+      <form id="signin-form">
+        <div class="field"><label for="signin-email">Email</label><input type="email" id="signin-email" required></div>
+        <div class="field"><label for="signin-password">Password</label><input type="password" id="signin-password" required></div>
+        <p class="form-error" id="signin-error"></p>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Bookings panel (shown after sign-in) -->
+    <div id="bookings-panel" style="display:none;margin-top:var(--space-lg)">
+      <div id="bookings-list"></div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-bottom">
+      <span>© 2026 Marlow House</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Cancel confirmation modal -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="modal">
+    <button class="modal-close" id="cancel-modal-close" aria-label="Close">×</button>
+    <h2>Cancel this booking?</h2>
+    <div id="cancel-details" style="margin-top:var(--space-sm)"></div>
+    <button id="cancel-confirm-btn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md)">Confirm Cancellation</button>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/my-bookings.js"></script>
+</body>
+</html>
