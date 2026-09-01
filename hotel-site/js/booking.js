@@ -1,112 +1,14 @@
 /*
-  Booking flow controller.
+  Date & room selection modal.
   ------------------------------------------------------------------
-  Flow: Select dates (live availability) -> Guest details ->
-        Account creation (email/password) -> Payment -> Confirmation
+  Shows a live availability calendar for the selected room. On
+  "Continue to Checkout", the selection is saved to sessionStorage
+  and the guest is sent to checkout.html to finish booking.
 
-  Firebase Auth handles account creation/login. Firestore stores bookings.
-
-  SETUP REQUIRED before this goes live:
-  1. Create a Firebase project, enable Email/Password sign-in under Authentication.
-  2. Create a Firestore database.
-  3. Paste your config into firebaseConfig below.
-  4. Add the Firebase SDK script tags to each HTML page (see index.html <head> comment).
-  5. Replace getUnavailableDates() with a real Firestore query (see that
-     function's comment below) so the calendar reflects real bookings
-     instead of the demo data.
+  Depends on js/shared.js being loaded first (ROOM_DATA,
+  getUnavailableDates, toISODate).
   ------------------------------------------------------------------
 */
-
-// ---- Firebase config (placeholder — replace with your project's values) ----
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-};
-
-let auth = null;
-let db = null;
-if (window.firebase && firebaseConfig.apiKey !== "YOUR_API_KEY") {
-  firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
-  db = firebase.firestore();
-}
-
-// ---- Cancellation & Refund Policy — single source of truth ----
-// Shared by the cancellation flow (My Bookings) and should match
-// cancellation-policy.html exactly. Update both together.
-const REFUND_POLICY = {
-  fullRefundHoursBeforeCheckin: 48,
-  partialRefundHoursBeforeCheckin: 24,
-  partialRefundPercent: 50,
-  noRefundWithinHours: 24,
-};
-
-function calculateRefund(checkInDate, cancelDate, totalAmount) {
-  const hoursUntilCheckin = (new Date(checkInDate) - new Date(cancelDate)) / (1000 * 60 * 60);
-  if (hoursUntilCheckin >= REFUND_POLICY.fullRefundHoursBeforeCheckin) {
-    return { percent: 100, amount: totalAmount, label: "Full refund" };
-  }
-  if (hoursUntilCheckin >= REFUND_POLICY.partialRefundHoursBeforeCheckin) {
-    const amount = totalAmount * (REFUND_POLICY.partialRefundPercent / 100);
-    return { percent: REFUND_POLICY.partialRefundPercent, amount, label: "Partial refund (50%)" };
-  }
-  return { percent: 0, amount: 0, label: "No refund (within 24 hours of check-in)" };
-}
-
-/* ============================================================
-   AVAILABILITY CALENDAR
-   ============================================================ */
-
-const ROOM_DATA = {
-  standard: { name: "The Standard", price: 6500 },
-  deluxe: { name: "The Deluxe", price: 9200 },
-  suite: { name: "The Suite", price: 14800 },
-};
-
-// Demo booked-dates data (ISO 'YYYY-MM-DD'), per room. This simulates
-// what a real Firestore query would return.
-//
-// TO GO LIVE: replace this object and getUnavailableDates() with a
-// Firestore read, e.g.:
-//
-//   async function getUnavailableDates(roomId) {
-//     const snap = await db.collection('bookings')
-//       .where('roomId', '==', roomId)
-//       .where('status', '==', 'confirmed')
-//       .get();
-//     const dates = [];
-//     snap.forEach(doc => {
-//       const { checkIn, checkOut } = doc.data();
-//       // expand the checkIn..checkOut range into individual ISO dates
-//       let d = new Date(checkIn);
-//       const end = new Date(checkOut);
-//       while (d < end) {
-//         dates.push(d.toISOString().slice(0, 10));
-//         d.setDate(d.getDate() + 1);
-//       }
-//     });
-//     return dates;
-//   }
-//
-// Note that function would then need to be awaited wherever it's
-// called below (renderCalendar), since Firestore reads are async.
-const DEMO_UNAVAILABLE_DATES = {
-  standard: ["2026-09-10", "2026-09-11", "2026-09-12", "2026-09-22", "2026-09-23"],
-  deluxe: ["2026-09-05", "2026-09-06", "2026-09-18", "2026-09-19", "2026-09-20"],
-  suite: ["2026-09-14", "2026-09-15", "2026-09-16", "2026-09-30"],
-};
-
-function getUnavailableDates(roomId) {
-  return DEMO_UNAVAILABLE_DATES[roomId] || [];
-}
-
-function toISODate(date) {
-  return date.toISOString().slice(0, 10);
-}
 
 const calendarState = {
   roomId: "standard",
@@ -135,8 +37,7 @@ function isPastDate(date) {
 }
 
 // Checks whether every date strictly between two ISO dates (exclusive)
-// is free — used to stop a guest selecting a checkout that spans over
-// an already-booked night.
+// is free — stops a guest selecting a checkout that spans a booked night.
 function rangeHasUnavailable(startISO, endISO, unavailableSet) {
   let d = new Date(startISO);
   const end = new Date(endISO);
@@ -204,7 +105,6 @@ function renderCalendar() {
     calGrid.appendChild(cell);
   }
 
-  // Disable "previous month" once we're at the current month — no booking in the past.
   const today = new Date();
   calPrev.disabled = viewYear === today.getFullYear() && viewMonth === today.getMonth();
 }
@@ -285,25 +185,16 @@ calNext?.addEventListener("click", () => {
   renderCalendar();
 });
 
-/* ============================================================
-   MODAL STEP CONTROL
-   ============================================================ */
-
+/* ---- Modal open/close ---- */
 const overlay = document.querySelector(".modal-overlay");
 const openButtons = document.querySelectorAll("[data-open-booking]");
 const closeButton = document.querySelector(".modal-close");
-const steps = document.querySelectorAll(".modal-step");
-
-function showStep(name) {
-  steps.forEach((s) => s.classList.toggle("active", s.dataset.step === name));
-}
 
 openButtons.forEach((btn) =>
   btn.addEventListener("click", () => {
     overlay.classList.add("open");
     const roomId = btn.dataset.roomId || "standard";
     initCalendarStep(roomId);
-    showStep("dates");
   })
 );
 closeButton?.addEventListener("click", () => overlay.classList.remove("open"));
@@ -311,99 +202,22 @@ overlay?.addEventListener("click", (e) => {
   if (e.target === overlay) overlay.classList.remove("open");
 });
 
-// Holds booking details in memory across steps.
-const bookingDraft = {};
-
+/* ---- Hand off to checkout page ---- */
 datesContinueBtn?.addEventListener("click", () => {
   const { roomId, checkIn, checkOut } = calendarState;
   const room = ROOM_DATA[roomId];
   const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
 
-  bookingDraft.roomId = roomId;
-  bookingDraft.roomName = room.name;
-  bookingDraft.pricePerNight = room.price;
-  bookingDraft.checkIn = checkIn;
-  bookingDraft.checkOut = checkOut;
-  bookingDraft.nights = nights;
-  bookingDraft.total = nights * room.price;
+  const draft = {
+    roomId,
+    roomName: room.name,
+    pricePerNight: room.price,
+    checkIn,
+    checkOut,
+    nights,
+    total: nights * room.price,
+  };
 
-  showStep("details");
-});
-
-// ---- Step 2: Guest details ----
-const detailsForm = document.querySelector("#booking-details-form");
-detailsForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const data = new FormData(detailsForm);
-  const name = data.get("name")?.trim();
-  const phone = data.get("phone")?.trim();
-  const email = data.get("email")?.trim();
-
-  if (!name || !phone || !email) return;
-
-  bookingDraft.name = name;
-  bookingDraft.phone = phone;
-  bookingDraft.email = email;
-
-  const accountEmailField = document.querySelector("#account-email");
-  if (accountEmailField) accountEmailField.value = email;
-
-  showStep("account");
-});
-
-// ---- Step 3: Account creation ----
-const accountForm = document.querySelector("#booking-account-form");
-accountForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const data = new FormData(accountForm);
-  const email = data.get("email")?.trim();
-  const password = data.get("password");
-  const errorEl = accountForm.querySelector(".form-error");
-
-  if (!password || password.length < 8) {
-    if (errorEl) {
-      errorEl.textContent = "Password must be at least 8 characters.";
-      errorEl.classList.add("show");
-    }
-    return;
-  }
-
-  try {
-    if (auth) {
-      await auth.createUserWithEmailAndPassword(email, password);
-    }
-    bookingDraft.email = email;
-    renderPaymentSummary();
-    showStep("payment");
-  } catch (err) {
-    if (errorEl) {
-      errorEl.textContent = err.message || "Could not create account. Try again.";
-      errorEl.classList.add("show");
-    }
-  }
-});
-
-function renderPaymentSummary() {
-  const el = document.querySelector("#payment-summary");
-  if (!el) return;
-  el.innerHTML = `
-    <strong>${bookingDraft.roomName}</strong><br>
-    ${bookingDraft.checkIn} → ${bookingDraft.checkOut} (${bookingDraft.nights} night${bookingDraft.nights > 1 ? "s" : ""})<br>
-    Total: ₹${bookingDraft.total.toLocaleString("en-IN")}
-  `;
-}
-
-// ---- Step 4: Payment (stub — wire up your gateway here) ----
-const payButton = document.querySelector("#confirm-payment");
-payButton?.addEventListener("click", async () => {
-  // Replace this with your payment gateway's checkout call (Razorpay/Stripe/etc).
-  // On success, store the booking in Firestore:
-  if (db) {
-    await db.collection("bookings").add({
-      ...bookingDraft,
-      status: "confirmed",
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-  }
-  showStep("confirmation");
+  sessionStorage.setItem("bookingDraft", JSON.stringify(draft));
+  window.location.href = "checkout.html";
 });

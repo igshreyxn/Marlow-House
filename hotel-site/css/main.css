@@ -416,6 +416,74 @@ p { max-width: 62ch; color: var(--ink-soft); }
   font-size: var(--step--1);
 }
 
+/* ---------- Checkout page ---------- */
+.checkout-grid {
+  display: grid;
+  gap: var(--space-xl);
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .checkout-grid { grid-template-columns: 340px 1fr; }
+  .checkout-grid .summary-card { position: sticky; top: calc(var(--space-xl) + 60px); }
+}
+
+.summary-card {
+  background: var(--warm-white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+}
+.summary-card h3 { font-size: var(--step-1); margin-bottom: var(--space-sm); }
+.summary-list { display: grid; gap: 0.6rem; margin-bottom: var(--space-md); }
+.summary-list > div { display: flex; justify-content: space-between; font-size: var(--step--1); }
+.summary-list dt { color: var(--ink-soft); }
+.summary-list dd { font-weight: 600; }
+.summary-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+.summary-total strong { color: var(--brass); }
+.edit-selection {
+  display: inline-block;
+  margin-top: var(--space-md);
+  font-size: var(--step--1);
+  text-decoration: underline;
+  color: var(--moss);
+}
+
+.checkout-section-title {
+  font-size: var(--step-1);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+#checkout-form .checkout-section-title:first-child { margin-top: 0; }
+
+.payment-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+}
+.payment-option {
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: var(--step--1);
+  transition: border-color 150ms var(--ease);
+}
+.payment-option:has(input:checked) { border-color: var(--moss); background: rgba(75,93,69,0.06); }
+
+.card-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
 /* ---------- My bookings ---------- */
 .booking-row {
   display: flex; justify-content: space-between; align-items: center;
