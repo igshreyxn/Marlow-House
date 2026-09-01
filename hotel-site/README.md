@@ -116,6 +116,22 @@ guest's email, and cancelling updates the booking's status in Firestore.
 No code changes are needed in `js/my-bookings.js` for that switch —
 just fill in `firebaseConfig` in `js/shared.js`.
 
+## Room service ordering
+
+`room-service.html` shows the menu (grouped by Starters / Mains / Desserts /
+Drinks) with an "Add" button per dish and a running cart in a sidebar,
+where quantities can be adjusted with +/− steppers.
+
+"Proceed to Checkout" hands the cart off to **`room-service-checkout.html`**
+— same pattern as the room booking checkout, but asking for **room number,
+phone number, and an optional delivery note** instead of guest details and
+account creation (an order doesn't need its own account). Payment method
+selection (Card / UPI / Charge to Room) works the same way as the booking
+checkout, and confirming saves the order and shows an on-page confirmation.
+
+Menu items and prices live in `MENU_ITEMS` at the top of `js/room-service.js`
+— edit that array to change what's offered.
+
 ## File structure
 
 ```
@@ -123,6 +139,8 @@ hotel-site/
 ├── index.html
 ├── rooms.html
 ├── checkout.html
+├── room-service.html
+├── room-service-checkout.html
 ├── my-bookings.html
 ├── cancellation-policy.html
 ├── css/
@@ -135,7 +153,9 @@ hotel-site/
 │   ├── shared.js
 │   ├── booking.js
 │   ├── checkout.js
-│   └── my-bookings.js
+│   ├── my-bookings.js
+│   ├── room-service.js
+│   └── room-service-checkout.js
 └── README.md
 ```
 

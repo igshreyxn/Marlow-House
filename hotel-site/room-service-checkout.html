@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Checkout — Marlow House</title>
-<meta name="description" content="Complete your booking at Marlow House — review your stay, create an account, and pay securely." />
+<title>Checkout — Room Service — Marlow House</title>
+<meta name="description" content="Complete your room service order at Marlow House." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/reset.css">
@@ -26,13 +26,11 @@
     <nav class="main-nav" aria-label="Primary">
       <a href="rooms.html">Rooms</a>
       <a href="room-service.html">Room Service</a>
-      <a href="index.html#dining">Dining</a>
       <a href="index.html#about">About</a>
-      <a href="index.html#contact">Contact</a>
       <a href="my-bookings.html">My Bookings</a>
     </nav>
     <div class="header-actions">
-      <a href="rooms.html" class="btn btn-ghost">Back to Rooms</a>
+      <a href="room-service.html" class="btn btn-ghost">Back to Menu</a>
     </div>
   </div>
 </header>
@@ -40,31 +38,27 @@
 <section class="section" style="padding-top:var(--space-xl)">
   <div class="wrap">
 
-    <!-- Shown if someone lands on checkout.html without picking a room first -->
+    <!-- Shown if someone lands here with an empty/no order -->
     <div id="checkout-empty" style="display:none;max-width:520px;margin-inline:auto;text-align:center">
-      <h1 style="font-family:var(--font-display);font-size:var(--step-2)">No room selected yet</h1>
-      <p>Pick a room and dates first, then come back here to complete your booking.</p>
-      <a href="rooms.html" class="btn btn-primary" style="margin-top:var(--space-md)">Browse Rooms</a>
+      <h1 style="font-family:var(--font-display);font-size:var(--step-2)">No order started yet</h1>
+      <p>Add some dishes from the menu first, then come back here to check out.</p>
+      <a href="room-service.html" class="btn btn-primary" style="margin-top:var(--space-md)">Browse Menu</a>
     </div>
 
     <div id="checkout-content" class="checkout-grid">
-      <!-- Order summary -->
       <aside class="summary-card" id="order-summary"></aside>
 
-      <!-- Details, account, payment -->
       <div>
-        <h1 style="font-family:var(--font-display);font-size:var(--step-2);margin-bottom:var(--space-md)">Complete your booking</h1>
+        <h1 style="font-family:var(--font-display);font-size:var(--step-2);margin-bottom:var(--space-md)">Complete your order</h1>
 
-        <form id="checkout-form">
-          <h3 class="checkout-section-title">Your details</h3>
-          <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
+        <form id="room-service-form">
+          <h3 class="checkout-section-title">Delivery details</h3>
+          <div class="field"><label for="room-number">Room number</label><input type="text" id="room-number" name="room-number" required></div>
           <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" required></div>
-          <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
-
-          <h3 class="checkout-section-title">Create your account</h3>
-          <p style="color:var(--ink-soft);font-size:var(--step--1);margin-bottom:var(--space-sm)">Used to manage or cancel this booking later.</p>
-          <div class="field"><label for="password">Password</label><input type="password" id="password" name="password" minlength="8" required></div>
-          <p class="form-error" id="password-error"></p>
+          <div class="field">
+            <label for="message">Delivery notes (optional)</label>
+            <textarea id="message" name="message" rows="3" style="border:1px solid var(--line);border-radius:var(--radius);padding:0.7rem 0.85rem;font-family:inherit;font-size:inherit;resize:vertical" placeholder="e.g. no onions, extra napkins, ring the doorbell softly"></textarea>
+          </div>
 
           <h3 class="checkout-section-title">Payment method</h3>
           <div class="payment-options">
@@ -77,8 +71,8 @@
               <span>UPI</span>
             </label>
             <label class="payment-option">
-              <input type="radio" name="payment-method" value="netbanking">
-              <span>Net Banking</span>
+              <input type="radio" name="payment-method" value="room-charge">
+              <span>Charge to Room</span>
             </label>
           </div>
 
@@ -88,14 +82,13 @@
             <div class="field"><label for="card-cvv">CVV</label><input type="text" id="card-cvv" name="card-cvv" placeholder="123"></div>
           </div>
 
-          <p style="color:var(--ink-soft);font-size:var(--step--1);margin-top:var(--space-md)">By confirming, you agree to our <a href="cancellation-policy.html" style="text-decoration:underline">Cancellation &amp; Refund Policy</a>.</p>
+          <p class="form-error" id="order-error"></p>
 
-          <button type="submit" id="confirm-pay-btn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md)">Confirm & Pay</button>
+          <button type="submit" id="confirm-order-btn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md)">Confirm & Pay</button>
         </form>
       </div>
     </div>
 
-    <!-- Shown after successful "payment" -->
     <div id="checkout-confirmation" style="display:none;max-width:520px;margin-inline:auto;text-align:center"></div>
 
   </div>
@@ -111,6 +104,6 @@
 </footer>
 
 <script src="js/shared.js"></script>
-<script src="js/checkout.js"></script>
+<script src="js/room-service-checkout.js"></script>
 </body>
 </html>

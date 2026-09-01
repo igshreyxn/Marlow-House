@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Room Service — Marlow House</title>
+<meta name="description" content="Order room service at Marlow House — add dishes to your order and have them delivered to your room." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="wordmark">Marlow House</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="rooms.html">Rooms</a>
+      <a href="room-service.html">Room Service</a>
+      <a href="index.html#about">About</a>
+      <a href="my-bookings.html">My Bookings</a>
+    </nav>
+    <div class="header-actions">
+      <a href="rooms.html" class="btn btn-primary">Book Now</a>
+      <button class="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:var(--space-xl)">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h1 style="font-family:var(--font-display);font-size:var(--step-3)">Room Service</h1>
+      <p>Order from our kitchen and we'll bring it straight to your room.</p>
+    </div>
+
+    <div class="checkout-grid">
+      <div id="menu-container"></div>
+
+      <aside class="summary-card" id="cart-summary">
+        <h3>Your Order</h3>
+        <div id="cart-items"><p style="color:var(--ink-soft);font-size:var(--step--1)">No items yet — add something from the menu.</p></div>
+        <div class="summary-total" id="cart-total" style="display:none">
+          <span>Subtotal</span>
+          <strong id="cart-total-amount">₹0</strong>
+        </div>
+        <button id="proceed-to-checkout" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md)" disabled>Proceed to Checkout</button>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-bottom">
+      <span>© 2026 Marlow House</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/scroll-reveal.js"></script>
+<script src="js/room-service.js"></script>
+</body>
+</html>
