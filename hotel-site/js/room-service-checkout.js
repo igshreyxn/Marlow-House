@@ -117,7 +117,7 @@ form?.addEventListener("submit", async (e) => {
   } catch (err) {
     submitBtn.disabled = false;
     submitBtn.textContent = "Confirm & Pay";
-    orderError.textContent = err.message || "Something went wrong. Please try again.";
+    orderError.textContent = err.code ? getFriendlyAuthError(err) : "Something went wrong. Please try again.";
     orderError.classList.add("show");
   }
 });

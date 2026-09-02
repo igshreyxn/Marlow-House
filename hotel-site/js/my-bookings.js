@@ -48,7 +48,7 @@ signinForm?.addEventListener("submit", async (e) => {
     await loadRealBookings(email);
     showBookingsPanel();
   } catch (err) {
-    signinError.textContent = err.message || "Could not sign in. Check your email and password.";
+    signinError.textContent = getFriendlyAuthError(err);
     signinError.classList.add("show");
   }
 });

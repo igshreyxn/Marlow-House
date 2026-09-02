@@ -66,7 +66,7 @@ loginForm?.addEventListener("submit", async (e) => {
     }
     showDashboard();
   } catch (err) {
-    loginError.textContent = err.message || "Could not sign in.";
+    loginError.textContent = getFriendlyAuthError(err);
     loginError.classList.add("show");
   }
 });

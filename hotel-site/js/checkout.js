@@ -70,9 +70,22 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
   submitBtn.textContent = "Processing…";
 
   try {
-    // 1. Create the guest's account.
+    // 1. Create the guest's account — or sign them in if this email
+    // already has one (e.g. a returning guest booking again).
     if (auth) {
-      await auth.createUserWithEmailAndPassword(email, password);
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (authErr) {
+        if (authErr.code === "auth/email-already-in-use") {
+          try {
+            await auth.signInWithEmailAndPassword(email, password);
+          } catch (signInErr) {
+            throw signInErr;
+          }
+        } else {
+          throw authErr;
+        }
+      }
     }
 
     // 2. Charge payment.
@@ -99,7 +112,7 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
   } catch (err) {
     submitBtn.disabled = false;
     submitBtn.textContent = "Confirm & Pay";
-    passwordError.textContent = err.message || "Something went wrong. Please try again.";
+    passwordError.textContent = getFriendlyAuthError(err);
     passwordError.classList.add("show");
   }
 });

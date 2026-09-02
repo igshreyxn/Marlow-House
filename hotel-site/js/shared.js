@@ -101,3 +101,31 @@ function readBookingDraft() {
     return null;
   }
 }
+
+// Converts a raw Firebase error into plain, professional, guest-facing
+// wording — no Firebase error codes or jargon should ever reach the
+// screen. Used by checkout.js, my-bookings.js, admin.js, and
+// room-service-checkout.js.
+function getFriendlyAuthError(error) {
+  const code = error && error.code;
+  switch (code) {
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+    case "auth/invalid-login-credentials":
+      return "Incorrect password. Please try again.";
+    case "auth/user-not-found":
+      return "We couldn't find an account with that email.";
+    case "auth/weak-password":
+      return "Please choose a password with at least 8 characters.";
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a moment and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    case "permission-denied":
+      return "You don't have permission to do that.";
+    default:
+      return "Something went wrong. Please try again.";
+  }
+}
