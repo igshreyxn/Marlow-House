@@ -69,30 +69,75 @@ Once Firestore is set up (see below), replace `getUnavailableDates()` in
 `js/shared.js` with a real query — the exact code and comments for this
 are already written directly above that function in the file.
 
-## Wiring up the booking system (required for live bookings)
+## Firebase status
 
-The booking flow (select dates → checkout page with guest details,
-account creation, and payment) is built and functional in the front end,
-but needs two things connected before it can actually create accounts,
-take payments, or show real availability:
+**This is already wired up** — `js/shared.js` has the real `firebaseConfig`
+for the `marlow-house` Firebase project, and every page that needs it
+(`index.html`, `rooms.html`, `checkout.html`, `my-bookings.html`,
+`room-service-checkout.html`, `admin.html`) already loads the Firebase SDK
+before `js/shared.js`.
 
-### 1. Firebase (accounts + storing bookings)
-1. Create a project at https://console.firebase.google.com
-2. Enable **Authentication → Sign-in method → Email/Password**
-3. Create a **Firestore Database** (start in production mode)
-4. In Project Settings → General, copy your web app config
-5. Open `js/shared.js` and paste your config into the `firebaseConfig` object
-   at the top of the file
-6. Add the Firebase SDK script tags to `index.html`, `rooms.html`, and
-   `checkout.html` — the exact tags are already written as a comment in the
-   `<head>` of each file, just uncomment/paste them in before `js/shared.js`
-   loads
+What's left to finish on the Firebase Console side (see the step-by-step
+walkthrough you were sent for this):
+1. **Authentication → Sign-in method → Email/Password** — enable it, if
+   not done already
+2. **Firestore Database → Create Database** — create it in production
+   mode, if not done already
+3. **Firestore → Rules tab** — paste in the contents of `firestore.rules`
+   (in this repo) and Publish. Without this step, Firestore's default
+   production rules block all reads/writes, so nothing will save yet.
+4. Set the `admin: true` custom claim on your admin account — instructions
+   are at the bottom of `firestore.rules`. Until this is done, admin
+   dashboard actions (updating an order's status, editing a room, blocking
+   a date) will be blocked by the rules in step 3, even though you can
+   sign in.
 
-### 2. Payment gateway
+## Payment gateway (still a stub)
+
 Open `js/checkout.js`, find the comment block starting `// 2. Charge
 payment.` inside the form submit handler, and replace it with your
 gateway's checkout call (e.g. Razorpay, Stripe, PayU). On success, the
 existing code saves the booking to Firestore and shows the confirmation.
+Do the same in `js/room-service-checkout.js` for room service payments.
+
+## Admin dashboard
+
+`admin.html` is a staff-only page with four panels:
+
+- **Bookings** — every room booking, with guest contact info and any
+  special requests message
+- **Room Service** — every food order, with room number, phone, delivery
+  notes, and a status dropdown (Received / Preparing / Delivered)
+- **Availability** — a per-room calendar where you can click a date to
+  block or unblock it (separate from dates already taken by guest
+  bookings, which show as booked and can't be toggled here)
+- **Rooms** — turn a room on/off for bookings and edit its nightly rate
+
+**⚠️ Security — read before going live:** the login on `admin.html`
+checks the signed-in email against an `ADMIN_EMAILS` list in
+`js/admin.js`. That check runs in the browser, which means it stops a
+casual visitor from seeing the dashboard, but it does **not** stop
+someone from editing that JS file locally to bypass it, or from writing
+directly to your Firestore collections with the browser dev tools. Real
+protection has to happen server-side — see `firestore.rules` in this
+repo for the actual rules to paste into your Firebase project, plus
+step-by-step instructions at the bottom of that file for setting the
+`admin: true` custom claim each admin account needs.
+
+**Don't forget:** `ADMIN_EMAILS` in `js/admin.js` is already set to
+`sengupta.shreyan9@gmail.com`. Add more emails to that array if you want
+additional admin accounts later.
+
+Like the other pages, `admin.html` runs in **demo mode** until Firebase
+is configured — any email/password signs in, and all data is sample data
+kept only in that browser tab, so you can test every panel immediately.
+
+**Note on Rooms tab scope:** turning a room off or changing its price
+here updates Firestore, but `index.html` and `rooms.html` currently show
+rooms as static HTML — they don't yet read from Firestore to reflect
+those changes live. Wiring that up (having the public pages fetch from
+the `rooms` collection instead of hardcoding room cards) is a natural
+next step once you're ready for it.
 
 ## Cancellation & refund logic
 
@@ -142,7 +187,9 @@ hotel-site/
 ├── room-service.html
 ├── room-service-checkout.html
 ├── my-bookings.html
+├── admin.html
 ├── cancellation-policy.html
+├── firestore.rules
 ├── css/
 │   ├── reset.css
 │   ├── variables.css
@@ -155,7 +202,8 @@ hotel-site/
 │   ├── checkout.js
 │   ├── my-bookings.js
 │   ├── room-service.js
-│   └── room-service-checkout.js
+│   ├── room-service-checkout.js
+│   └── admin.js
 └── README.md
 ```
 

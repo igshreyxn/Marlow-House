@@ -11,12 +11,10 @@
 <link rel="stylesheet" href="css/variables.css">
 <link rel="stylesheet" href="css/main.css">
 
-<!--
-  Firebase SDK (add before js/shared.js, once you have a project config):
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
--->
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -60,6 +58,10 @@
           <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
           <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" required></div>
           <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+          <div class="field">
+            <label for="message">Special requests (optional)</label>
+            <textarea id="message" name="message" rows="2" style="border:1px solid var(--line);border-radius:var(--radius);padding:0.7rem 0.85rem;font-family:inherit;font-size:inherit;resize:vertical" placeholder="e.g. late check-in, high floor, anniversary stay"></textarea>
+          </div>
 
           <h3 class="checkout-section-title">Create your account</h3>
           <p style="color:var(--ink-soft);font-size:var(--step--1);margin-bottom:var(--space-sm)">Used to manage or cancel this booking later.</p>

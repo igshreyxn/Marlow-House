@@ -1,0 +1,118 @@
+// Firestore Security Rules for the Marlow House project.
+//
+// HOW TO APPLY:
+// 1. Go to console.firebase.google.com → your project → Build → Firestore Database
+// 2. Click the "Rules" tab
+// 3. Replace whatever is there with the rules below
+// 4. Click "Publish"
+//
+// WHAT THESE DO:
+// - Anyone can READ rooms and room availability (needed so the public
+//   site can show room cards and the booking calendar).
+// - Only a SIGNED-IN guest can create their own booking or room service
+//   order, and only for themselves (their own email).
+// - Only an ADMIN account can update/delete bookings, orders, rooms, or
+//   availability — e.g. changing a booking's status, editing room prices,
+//   blocking dates.
+//
+// This requires each admin account to have a custom claim `admin: true`
+// set on it — see "Setting the admin custom claim" below. Until you do
+// that, the `isAdmin()` checks below will always be false, meaning ONLY
+// reads will work and no writes will succeed (including from admin.html)
+// — safe by default, but you'll need to complete that step for the
+// admin dashboard's write actions (updating order status, editing rooms,
+// blocking dates) to actually work.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // Guest bookings
+    match /bookings/{bookingId} {
+      allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;
+      allow read: if isSignedIn() && (resource.data.email == request.auth.token.email || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // Room service orders — no account required to place one (see
+    // js/room-service-checkout.js), so creation is open, but only an
+    // admin can read the full list or change an order's status.
+    match /roomServiceOrders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Room catalog (price, active/hidden) — public read so the site can
+    // show rooms, admin-only write.
+    match /rooms/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin-blocked dates per room — public read so the booking calendar
+    // can show them, admin-only write.
+    match /roomAvailability/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// Setting the admin custom claim
+// ------------------------------------------------------------------
+// Custom claims can't be set from client-side code (that would let
+// anyone grant themselves admin access) — they need the Firebase Admin
+// SDK, run somewhere trusted: your own machine, a Cloud Function, etc.
+//
+// Simplest path — a one-off Node script run on your own computer:
+//
+// 1. In Firebase Console → Project Settings → Service Accounts,
+//    click "Generate new private key" — this downloads a JSON file.
+//    Keep it secret, never commit it to GitHub.
+//
+// 2. On your machine, in an empty folder:
+//      npm install firebase-admin
+//
+// 3. Create set-admin.js:
+//
+//      const admin = require('firebase-admin');
+//      const serviceAccount = require('./PATH_TO_YOUR_DOWNLOADED_KEY.json');
+//
+//      admin.initializeApp({
+//        credential: admin.credential.cert(serviceAccount),
+//      });
+//
+//      const email = 'sengupta.shreyan9@gmail.com';
+//
+//      admin.auth().getUserByEmail(email)
+//        .then((user) => admin.auth().setCustomUserClaims(user.uid, { admin: true }))
+//        .then(() => {
+//          console.log(`admin claim set for ${email}`);
+//          process.exit(0);
+//        })
+//        .catch((err) => {
+//          console.error(err);
+//          process.exit(1);
+//        });
+//
+// 4. First create that account normally (sign up once through
+//    my-bookings.html or checkout.html with the email you want to be
+//    admin — this creates the Firebase Auth user), then run:
+//      node set-admin.js
+//
+// 5. That account now has admin: true. It may need to sign out and
+//    back in for the claim to take effect in the browser.
+//
+// Repeat step 4 (with a new email) for each additional admin account.
+// Also update ADMIN_EMAILS in js/admin.js to include each admin's email
+// — that list is still a useful first-line UI check even though the
+// real enforcement now lives in these security rules.

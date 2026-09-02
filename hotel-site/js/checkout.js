@@ -54,6 +54,7 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
   const name = data.get("name")?.trim();
   const phone = data.get("phone")?.trim();
   const email = data.get("email")?.trim();
+  const message = data.get("message")?.trim() || "";
   const password = data.get("password");
   const paymentMethod = data.get("payment-method");
 
@@ -86,6 +87,7 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
         name,
         phone,
         email,
+        message,
         paymentMethod,
         status: "confirmed",
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),

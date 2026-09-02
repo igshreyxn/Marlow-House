@@ -555,3 +555,64 @@ p { max-width: 62ch; color: var(--ink-soft); }
   background: rgba(75,93,69,0.12); color: var(--moss-dark);
 }
 .status-pill.cancelled { background: rgba(160,59,59,0.12); color: #A03B3B; }
+
+/* ---------- Admin dashboard ---------- */
+.admin-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-lg);
+  overflow-x: auto;
+}
+.admin-tab {
+  padding: 0.75rem 0.25rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  margin-right: var(--space-md);
+}
+.admin-tab.active { color: var(--ink); border-bottom-color: var(--moss); }
+
+.admin-panel { display: none; }
+.admin-panel.active { display: block; }
+
+.admin-message {
+  margin-top: 0.5rem;
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--ink-soft);
+  background: var(--parchment);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  max-width: 480px;
+}
+
+.order-status-select {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-size: var(--step--1);
+  background: var(--warm-white);
+}
+
+.admin-room-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--warm-white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-sm);
+  flex-wrap: wrap;
+}
+.room-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}

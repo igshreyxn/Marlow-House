@@ -10,12 +10,12 @@
 */
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCVUXHsqjs53w_3m8K5R6drhjAb-GQCB7E",
+  authDomain: "marlow-house.firebaseapp.com",
+  projectId: "marlow-house",
+  storageBucket: "marlow-house.firebasestorage.app",
+  messagingSenderId: "72245159473",
+  appId: "1:72245159473:web:36122e0d557df997a1d710",
 };
 
 let auth = null;

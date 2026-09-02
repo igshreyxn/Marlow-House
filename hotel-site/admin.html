@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Marlow House</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="wordmark">Marlow House <span style="font-family:var(--font-body);font-size:var(--step--1);color:var(--ink-soft)">Admin</span></a>
+    <div class="header-actions">
+      <button id="admin-signout" class="btn btn-ghost" style="display:none">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:var(--space-xl)">
+  <div class="wrap">
+
+    <div id="admin-demo-notice" style="display:none;background:var(--parchment);border-radius:var(--radius);padding:var(--space-sm) var(--space-md);margin-bottom:var(--space-lg);font-size:var(--step--1);color:var(--ink-soft)">
+      Firebase isn't connected yet, so this is running in demo mode: any email/password signs you in, and all data shown is sample data kept only in this browser tab. See the README for wiring up real admin accounts and data.
+    </div>
+
+    <!-- Login panel -->
+    <div id="admin-login-panel" style="max-width:400px">
+      <h1 style="font-family:var(--font-display);font-size:var(--step-2);margin-bottom:var(--space-sm)">Admin Sign In</h1>
+      <p style="color:var(--ink-soft);margin-bottom:var(--space-md)">Staff access only.</p>
+      <form id="admin-login-form">
+        <div class="field"><label for="admin-email">Email</label><input type="email" id="admin-email" required></div>
+        <div class="field"><label for="admin-password">Password</label><input type="password" id="admin-password" required></div>
+        <p class="form-error" id="admin-login-error"></p>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Dashboard (shown after sign-in) -->
+    <div id="admin-dashboard" style="display:none">
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="bookings">Bookings</button>
+        <button class="admin-tab" data-tab="room-service">Room Service</button>
+        <button class="admin-tab" data-tab="availability">Availability</button>
+        <button class="admin-tab" data-tab="rooms">Rooms</button>
+      </div>
+
+      <!-- Bookings -->
+      <div class="admin-panel active" data-panel="bookings">
+        <h2 class="checkout-section-title" style="margin-top:0">Bookings</h2>
+        <div id="admin-bookings-list"></div>
+      </div>
+
+      <!-- Room Service -->
+      <div class="admin-panel" data-panel="room-service">
+        <h2 class="checkout-section-title" style="margin-top:0">Room Service Orders</h2>
+        <div id="admin-orders-list"></div>
+      </div>
+
+      <!-- Availability -->
+      <div class="admin-panel" data-panel="availability">
+        <h2 class="checkout-section-title" style="margin-top:0">Room Availability</h2>
+        <p style="color:var(--ink-soft);font-size:var(--step--1);margin-bottom:var(--space-md)">
+          Click a date to block or unblock it for booking. Dates already booked by a guest can't be toggled here.
+        </p>
+        <div class="field" style="max-width:320px">
+          <label for="admin-room-select">Room</label>
+          <select id="admin-room-select">
+            <option value="standard">The Standard</option>
+            <option value="deluxe">The Deluxe</option>
+            <option value="suite">The Suite</option>
+          </select>
+        </div>
+
+        <div class="calendar-widget" style="max-width:400px">
+          <div class="calendar-nav">
+            <button type="button" class="admin-cal-prev" aria-label="Previous month">←</button>
+            <span class="admin-cal-month-label"></span>
+            <button type="button" class="admin-cal-next" aria-label="Next month">→</button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+          </div>
+          <div class="calendar-grid" id="admin-calendar-grid"></div>
+          <div class="calendar-legend">
+            <span><i class="dot dot-available"></i>Available</span>
+            <span><i class="dot" style="background:var(--brass)"></i>Blocked by you</span>
+            <span><i class="dot dot-unavailable"></i>Guest booking</span>
+          </div>
+        </div>
+
+        <p id="admin-availability-note" style="font-size:var(--step--1);color:var(--ink-soft);margin-top:var(--space-sm)"></p>
+      </div>
+
+      <!-- Rooms -->
+      <div class="admin-panel" data-panel="rooms">
+        <h2 class="checkout-section-title" style="margin-top:0">Rooms</h2>
+        <p style="color:var(--ink-soft);font-size:var(--step--1);margin-bottom:var(--space-md)">
+          Turn a room off to stop it from being bookable, or update its rate.
+        </p>
+        <div id="admin-rooms-list"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="js/shared.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
