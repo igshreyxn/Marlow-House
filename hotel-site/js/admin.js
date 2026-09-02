@@ -35,6 +35,13 @@
 
 const ADMIN_EMAILS = ["sengupta.shreyan9@gmail.com"]; // client-side convenience only — see notice above
 
+// Shown in any panel when a Firestore read/write is blocked because
+// this account doesn't have the admin custom claim yet. See the
+// "Setting the admin custom claim" instructions in firestore.rules.
+function adminPermissionNotice() {
+  return `<p style="color:var(--ink-soft)">This account can sign in, but doesn't have full admin access on the server yet — so this data is being blocked from loading. See the "Setting the admin custom claim" steps in <code>firestore.rules</code> to fix this.</p>`;
+}
+
 const DEMO_MODE = !(auth && db);
 
 const demoNotice = document.querySelector("#admin-demo-notice");
@@ -112,9 +119,14 @@ async function loadBookings() {
   let bookings = demoBookings;
 
   if (!DEMO_MODE) {
-    const snap = await db.collection("bookings").orderBy("createdAt", "desc").get();
-    bookings = [];
-    snap.forEach((doc) => bookings.push({ id: doc.id, ...doc.data() }));
+    try {
+      const snap = await db.collection("bookings").orderBy("createdAt", "desc").get();
+      bookings = [];
+      snap.forEach((doc) => bookings.push({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      listEl.innerHTML = adminPermissionNotice();
+      return;
+    }
   }
 
   if (bookings.length === 0) {
@@ -155,9 +167,14 @@ async function loadOrders() {
   let orders = demoOrders;
 
   if (!DEMO_MODE) {
-    const snap = await db.collection("roomServiceOrders").orderBy("createdAt", "desc").get();
-    orders = [];
-    snap.forEach((doc) => orders.push({ id: doc.id, ...doc.data() }));
+    try {
+      const snap = await db.collection("roomServiceOrders").orderBy("createdAt", "desc").get();
+      orders = [];
+      snap.forEach((doc) => orders.push({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+      listEl.innerHTML = adminPermissionNotice();
+      return;
+    }
   }
 
   if (orders.length === 0) {
@@ -227,9 +244,13 @@ const ADMIN_MONTH_NAMES = ["January","February","March","April","May","June","Ju
 
 async function initAvailabilityTab() {
   if (!DEMO_MODE) {
-    for (const roomId of Object.keys(adminBlockedDates)) {
-      const doc = await db.collection("roomAvailability").doc(roomId).get();
-      adminBlockedDates[roomId] = doc.exists ? doc.data().blockedDates || [] : [];
+    try {
+      for (const roomId of Object.keys(adminBlockedDates)) {
+        const doc = await db.collection("roomAvailability").doc(roomId).get();
+        adminBlockedDates[roomId] = doc.exists ? doc.data().blockedDates || [] : [];
+      }
+    } catch (err) {
+      adminAvailabilityNote.textContent = "Couldn't load saved blocked dates — showing this session only.";
     }
   }
   renderAdminCalendar();
@@ -345,11 +366,15 @@ const adminRoomsState = Object.fromEntries(
 
 async function loadRooms() {
   if (!DEMO_MODE) {
-    for (const roomId of Object.keys(adminRoomsState)) {
-      const doc = await db.collection("rooms").doc(roomId).get();
-      if (doc.exists) {
-        adminRoomsState[roomId] = { ...adminRoomsState[roomId], ...doc.data() };
+    try {
+      for (const roomId of Object.keys(adminRoomsState)) {
+        const doc = await db.collection("rooms").doc(roomId).get();
+        if (doc.exists) {
+          adminRoomsState[roomId] = { ...adminRoomsState[roomId], ...doc.data() };
+        }
       }
+    } catch (err) {
+      // Falls back to the ROOM_DATA defaults already in adminRoomsState.
     }
   }
   renderRoomsPanel();

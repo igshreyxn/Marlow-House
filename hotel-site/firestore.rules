@@ -35,6 +35,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.admin == true;
     }
 
+    // Guest profiles created at sign-up (name + email) — a guest can
+    // read/write only their own profile document (keyed by their UID).
+    match /guests/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
+
     // Guest bookings
     match /bookings/{bookingId} {
       allow create: if isSignedIn() && request.resource.data.email == request.auth.token.email;

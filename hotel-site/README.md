@@ -147,9 +147,14 @@ alongside a `calculateRefund()` function. This must match the table in
 
 ## My Bookings page
 
-`my-bookings.html` lets a signed-in guest view their bookings and cancel
-one, showing the exact refund amount (via `calculateRefund()`) before they
-confirm.
+`my-bookings.html` lets guests either **sign in** or **create a new
+account** (toggle at the top of the panel) — account creation isn't only
+available through checkout anymore. A new account gets a `guests/{uid}`
+Firestore document with their name and email, and starts with an empty
+bookings list.
+
+Once signed in, a guest can view their bookings and cancel one, showing
+the exact refund amount (via `calculateRefund()`) before they confirm.
 
 **Important:** until Firebase is actually configured in `js/shared.js`,
 this page runs in **demo mode** — it skips real sign-in and shows two

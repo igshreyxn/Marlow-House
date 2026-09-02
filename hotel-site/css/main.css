@@ -616,3 +616,20 @@ p { max-width: 62ch; color: var(--ink-soft); }
   font-size: var(--step--1);
   color: var(--ink-soft);
 }
+
+/* ---------- Auth toggle (sign in / create account) ---------- */
+.auth-toggle {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--line);
+}
+.auth-toggle-btn {
+  padding: 0.6rem 0.25rem;
+  margin-right: var(--space-md);
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 2px solid transparent;
+}
+.auth-toggle-btn.active { color: var(--ink); border-bottom-color: var(--moss); }

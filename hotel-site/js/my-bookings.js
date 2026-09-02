@@ -22,8 +22,22 @@ const bookingsPanel = document.querySelector("#bookings-panel");
 const bookingsList = document.querySelector("#bookings-list");
 const signinForm = document.querySelector("#signin-form");
 const signinError = document.querySelector("#signin-error");
+const signupForm = document.querySelector("#signup-form");
+const signupError = document.querySelector("#signup-error");
+const authToggleBtns = document.querySelectorAll(".auth-toggle-btn");
 
 if (DEMO_MODE && demoNotice) demoNotice.style.display = "block";
+
+/* ---- Sign In / Create Account toggle ---- */
+authToggleBtns.forEach((btn) =>
+  btn.addEventListener("click", () => {
+    authToggleBtns.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    const isSignup = btn.dataset.mode === "signup";
+    signinForm.style.display = isSignup ? "none" : "block";
+    signupForm.style.display = isSignup ? "block" : "none";
+  })
+);
 
 // Sample bookings shown only in demo mode. Once Firestore is connected,
 // loadRealBookings() below replaces this with the signed-in guest's
@@ -50,6 +64,30 @@ signinForm?.addEventListener("submit", async (e) => {
   } catch (err) {
     signinError.textContent = getFriendlyAuthError(err);
     signinError.classList.add("show");
+  }
+});
+
+signupForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.querySelector("#signup-name").value.trim();
+  const email = document.querySelector("#signup-email").value.trim();
+  const password = document.querySelector("#signup-password").value;
+
+  if (DEMO_MODE) {
+    showBookingsPanel();
+    return;
+  }
+
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    if (db) {
+      await db.collection("guests").doc(cred.user.uid).set({ name, email });
+    }
+    bookings = []; // brand-new account — no bookings yet
+    showBookingsPanel();
+  } catch (err) {
+    signupError.textContent = getFriendlyAuthError(err);
+    signupError.classList.add("show");
   }
 });
 

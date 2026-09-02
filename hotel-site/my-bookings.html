@@ -45,12 +45,26 @@
 
     <!-- Sign-in panel -->
     <div id="signin-panel" style="max-width:420px;margin-top:var(--space-lg)">
-      <p style="color:var(--ink-soft);margin-bottom:var(--space-md)">Sign in with the account you created at checkout to view or cancel your bookings.</p>
+      <p style="color:var(--ink-soft);margin-bottom:var(--space-md)">Sign in to view or cancel your bookings, or create an account if you're new here.</p>
+
+      <div class="auth-toggle">
+        <button type="button" class="auth-toggle-btn active" data-mode="signin">Sign In</button>
+        <button type="button" class="auth-toggle-btn" data-mode="signup">Create Account</button>
+      </div>
+
       <form id="signin-form">
         <div class="field"><label for="signin-email">Email</label><input type="email" id="signin-email" required></div>
         <div class="field"><label for="signin-password">Password</label><input type="password" id="signin-password" required></div>
         <p class="form-error" id="signin-error"></p>
         <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+
+      <form id="signup-form" style="display:none">
+        <div class="field"><label for="signup-name">Full name</label><input type="text" id="signup-name" required></div>
+        <div class="field"><label for="signup-email">Email</label><input type="email" id="signup-email" required></div>
+        <div class="field"><label for="signup-password">Password</label><input type="password" id="signup-password" minlength="8" required></div>
+        <p class="form-error" id="signup-error"></p>
+        <button type="submit" class="btn btn-primary">Create Account</button>
       </form>
     </div>
 
