@@ -59,6 +59,11 @@ function renderCalendar() {
     return;
   }
 
+  if (calendarState.loadError) {
+    calGrid.innerHTML = `<p style="grid-column:1/-1;color:#A03B3B;font-size:var(--step--1);padding:var(--space-md) 0">Couldn't load live availability right now. Please refresh and try again, or contact us directly to check dates.</p>`;
+    return;
+  }
+
   const { viewYear, viewMonth, unavailable } = calendarState;
 
   calMonthLabel.textContent = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
@@ -164,11 +169,18 @@ async function initCalendarStep(roomId) {
   if (roomSelect) roomSelect.value = roomId;
 
   calendarState.loading = true;
+  calendarState.loadError = false;
   renderCalendar();
   updateSummary();
 
-  const dates = await fetchAllUnavailableDates(roomId);
-  calendarState.unavailable = new Set(dates);
+  try {
+    const dates = await fetchAllUnavailableDates(roomId);
+    calendarState.unavailable = new Set(dates);
+  } catch (err) {
+    console.error("Failed to load availability:", err);
+    calendarState.loadError = true;
+  }
+
   calendarState.loading = false;
   renderCalendar();
 }

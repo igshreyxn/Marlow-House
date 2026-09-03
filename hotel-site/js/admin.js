@@ -337,8 +337,14 @@ async function initAvailabilityTab() {
 
 async function loadGuestBookedDates(roomId) {
   adminCalState.loading = true;
+  adminCalState.loadError = false;
   renderAdminCalendar();
-  adminGuestBookedDates[roomId] = await fetchGuestBookedDates(roomId);
+  try {
+    adminGuestBookedDates[roomId] = await fetchGuestBookedDates(roomId);
+  } catch (err) {
+    console.error("Failed to load guest bookings for calendar:", err);
+    adminCalState.loadError = true;
+  }
   adminCalState.loading = false;
 }
 
@@ -371,6 +377,11 @@ function renderAdminCalendar() {
 
   if (adminCalState.loading) {
     adminCalGrid.innerHTML = `<p style="grid-column:1/-1;color:var(--ink-soft);font-size:var(--step--1);padding:var(--space-md) 0">Loading…</p>`;
+    return;
+  }
+
+  if (adminCalState.loadError) {
+    adminCalGrid.innerHTML = `<p style="grid-column:1/-1;color:#A03B3B;font-size:var(--step--1);padding:var(--space-md) 0">Couldn't load guest bookings for this room — check the Firestore rules include bookedRanges.</p>`;
     return;
   }
 
