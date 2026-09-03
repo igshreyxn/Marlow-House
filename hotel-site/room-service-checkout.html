@@ -58,6 +58,12 @@
             <textarea id="message" name="message" rows="3" style="border:1px solid var(--line);border-radius:var(--radius);padding:0.7rem 0.85rem;font-family:inherit;font-size:inherit;resize:vertical" placeholder="e.g. no onions, extra napkins, ring the doorbell softly"></textarea>
           </div>
 
+          <h3 class="checkout-section-title">Your account</h3>
+          <p style="color:var(--ink-soft);font-size:var(--step--1);margin-bottom:var(--space-sm)">Sign in if you've ordered or booked with us before, or create an account to track this order.</p>
+          <div class="field"><label for="account-email">Email</label><input type="email" id="account-email" name="email" required></div>
+          <div class="field"><label for="account-password">Password</label><input type="password" id="account-password" name="password" minlength="8" required></div>
+          <p class="form-error" id="account-error"></p>
+
           <h3 class="checkout-section-title">Payment method</h3>
           <div class="payment-options">
             <label class="payment-option">

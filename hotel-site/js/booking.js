@@ -6,7 +6,7 @@
   and the guest is sent to checkout.html to finish booking.
 
   Depends on js/shared.js being loaded first (ROOM_DATA,
-  getUnavailableDates, toISODate).
+  fetchAllUnavailableDates, toISODate).
   ------------------------------------------------------------------
 */
 
@@ -16,6 +16,8 @@ const calendarState = {
   viewMonth: new Date().getMonth(),
   checkIn: null,
   checkOut: null,
+  unavailable: new Set(), // fetched fresh whenever the room changes
+  loading: false,
 };
 
 const roomSelect = document.querySelector("#room-select");
@@ -51,8 +53,13 @@ function rangeHasUnavailable(startISO, endISO, unavailableSet) {
 
 function renderCalendar() {
   if (!calGrid) return;
-  const { viewYear, viewMonth, roomId } = calendarState;
-  const unavailable = new Set(getUnavailableDates(roomId));
+
+  if (calendarState.loading) {
+    calGrid.innerHTML = `<p style="grid-column:1/-1;color:var(--ink-soft);font-size:var(--step--1);padding:var(--space-md) 0">Checking availability…</p>`;
+    return;
+  }
+
+  const { viewYear, viewMonth, unavailable } = calendarState;
 
   calMonthLabel.textContent = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
 
@@ -147,7 +154,7 @@ function updateSummary() {
   }
 }
 
-function initCalendarStep(roomId) {
+async function initCalendarStep(roomId) {
   calendarState.roomId = roomId;
   calendarState.checkIn = null;
   calendarState.checkOut = null;
@@ -155,16 +162,21 @@ function initCalendarStep(roomId) {
   calendarState.viewYear = today.getFullYear();
   calendarState.viewMonth = today.getMonth();
   if (roomSelect) roomSelect.value = roomId;
+
+  calendarState.loading = true;
   renderCalendar();
   updateSummary();
+
+  const dates = await fetchAllUnavailableDates(roomId);
+  calendarState.unavailable = new Set(dates);
+  calendarState.loading = false;
+  renderCalendar();
 }
 
-roomSelect?.addEventListener("change", (e) => {
-  calendarState.roomId = e.target.value;
+roomSelect?.addEventListener("change", async (e) => {
   calendarState.checkIn = null;
   calendarState.checkOut = null;
-  renderCalendar();
-  updateSummary();
+  await initCalendarStep(e.target.value);
 });
 
 calPrev?.addEventListener("click", () => {

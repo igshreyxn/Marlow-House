@@ -57,17 +57,23 @@ they see a friendly prompt to go choose one — there's nothing to fall
 back on since the room/dates only exist in that browser session
 (`sessionStorage`) until checkout completes.
 
-## Availability calendar
+## Availability calendar — how it actually works
 
-Each "Check Dates" / "Check Dates & Book" button opens a calendar for that
-room, with already-booked dates greyed out and struck through. Right now
-the booked dates are **demo data** — a hardcoded list in `js/shared.js`
-(`DEMO_UNAVAILABLE_DATES`), so you can see the feature working before
-Firebase is connected.
+The calendar shows a date as unavailable when it's either:
+- **Booked by a guest** — a real confirmed booking. `checkout.js` writes
+  the room + dates (no guest info) to a `bookedRanges` collection when a
+  booking is confirmed; the calendar reads from there.
+- **Blocked by you** — set from the Availability tab in `admin.html`,
+  stored in `roomAvailability/{roomId}.blockedDates`.
 
-Once Firestore is set up (see below), replace `getUnavailableDates()` in
-`js/shared.js` with a real query — the exact code and comments for this
-are already written directly above that function in the file.
+Both are combined via `fetchAllUnavailableDates(roomId)` in
+`js/shared.js`, which is what `js/booking.js` (the public calendar) and
+`js/admin.js` (the admin calendar) both call. This is real, not demo —
+as soon as Firebase is connected (see below), a booking made by one
+guest actually blocks that date for the next guest, and a date you
+block in admin actually disappears from the public calendar. If Firebase
+isn't configured yet, `DEMO_UNAVAILABLE_DATES` in `js/shared.js` is used
+as a fallback so the calendar still has something to show.
 
 ## Firebase status
 
@@ -105,7 +111,11 @@ Do the same in `js/room-service-checkout.js` for room service payments.
 `admin.html` is a staff-only page with four panels:
 
 - **Bookings** — every room booking, with guest contact info and any
-  special requests message
+  special requests message. Confirmed bookings have a **Cancel** button
+  that shows the exact refund amount (via `calculateRefund()`) before
+  confirming — cancelling updates the booking's status, records the
+  refund amount, and frees up those dates on the public calendar
+  (removes the linked `bookedRanges` entry)
 - **Room Service** — every food order, with room number, phone, delivery
   notes, and a status dropdown (Received / Preparing / Delivered)
 - **Availability** — a per-room calendar where you can click a date to
@@ -173,11 +183,12 @@ Drinks) with an "Add" button per dish and a running cart in a sidebar,
 where quantities can be adjusted with +/− steppers.
 
 "Proceed to Checkout" hands the cart off to **`room-service-checkout.html`**
-— same pattern as the room booking checkout, but asking for **room number,
-phone number, and an optional delivery note** instead of guest details and
-account creation (an order doesn't need its own account). Payment method
-selection (Card / UPI / Charge to Room) works the same way as the booking
-checkout, and confirming saves the order and shows an on-page confirmation.
+— same pattern as the room booking checkout: room number, phone number,
+delivery notes, and now also **account sign-in/creation** (email +
+password, same "create or sign in automatically" behavior as booking
+checkout). Payment method selection (Card / UPI / Charge to Room) works
+the same way as the booking checkout, and confirming saves the order and
+shows an on-page confirmation.
 
 Menu items and prices live in `MENU_ITEMS` at the top of `js/room-service.js`
 — edit that array to change what's offered.

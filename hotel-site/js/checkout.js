@@ -93,8 +93,17 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
     // (Razorpay/Stripe/etc). paymentMethod is one of: card, upi, netbanking.
     // On success, continue to the Firestore write below.
 
-    // 3. Store the confirmed booking.
+    // 3. Store the confirmed booking, linked to a bookedRanges entry
+    // (room + dates only, no guest info) so the public calendar can
+    // mark these dates unavailable — and so an admin cancellation can
+    // free them again later.
     if (db) {
+      const rangeRef = await db.collection("bookedRanges").add({
+        roomId: draft.roomId,
+        checkIn: draft.checkIn,
+        checkOut: draft.checkOut,
+      });
+
       await db.collection("bookings").add({
         ...draft,
         name,
@@ -103,6 +112,7 @@ checkoutFormEl?.addEventListener("submit", async (e) => {
         message,
         paymentMethod,
         status: "confirmed",
+        bookedRangeId: rangeRef.id,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     }

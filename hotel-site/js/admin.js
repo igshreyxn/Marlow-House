@@ -1,8 +1,8 @@
 /*
   Admin dashboard controller.
   ------------------------------------------------------------------
-  Depends on js/shared.js (auth, db, ROOM_DATA, getUnavailableDates,
-  toISODate).
+  Depends on js/shared.js (auth, db, ROOM_DATA, fetchGuestBookedDates,
+  fetchAdminBlockedDates, toISODate).
 
   SECURITY — READ THIS BEFORE GOING LIVE:
   The ADMIN_EMAILS check below is a CLIENT-SIDE convenience only. It
@@ -114,27 +114,35 @@ const demoBookings = [
   { id: "b2", name: "Arjun K.", phone: "+91 91234 56789", email: "arjun@example.com", roomName: "The Standard", checkIn: "2026-09-10", checkOut: "2026-09-12", nights: 2, total: 13000, message: "", status: "confirmed" },
 ];
 
+let currentBookings = [];
+
 async function loadBookings() {
   const listEl = document.querySelector("#admin-bookings-list");
-  let bookings = demoBookings;
+  currentBookings = demoBookings;
 
   if (!DEMO_MODE) {
     try {
       const snap = await db.collection("bookings").orderBy("createdAt", "desc").get();
-      bookings = [];
-      snap.forEach((doc) => bookings.push({ id: doc.id, ...doc.data() }));
+      currentBookings = [];
+      snap.forEach((doc) => currentBookings.push({ id: doc.id, ...doc.data() }));
     } catch (err) {
       listEl.innerHTML = adminPermissionNotice();
       return;
     }
   }
 
-  if (bookings.length === 0) {
+  renderBookingsList();
+}
+
+function renderBookingsList() {
+  const listEl = document.querySelector("#admin-bookings-list");
+
+  if (currentBookings.length === 0) {
     listEl.innerHTML = "<p>No bookings yet.</p>";
     return;
   }
 
-  listEl.innerHTML = bookings
+  listEl.innerHTML = currentBookings
     .map(
       (b) => `
     <div class="booking-row" style="align-items:flex-start">
@@ -145,13 +153,79 @@ async function loadBookings() {
           ${b.phone} · ${b.email}
         </span>
         ${b.message ? `<div class="admin-message">"${b.message}"</div>` : ""}
+        ${b.status === "cancelled" && b.refundAmount != null ? `<div class="admin-message">Refunded ₹${b.refundAmount.toLocaleString("en-IN")}</div>` : ""}
       </div>
-      <span class="status-pill${b.status === "cancelled" ? " cancelled" : ""}">${b.status}</span>
+      <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <span class="status-pill${b.status === "cancelled" ? " cancelled" : ""}">${b.status}</span>
+        ${b.status === "confirmed" ? `<button class="btn btn-ghost admin-cancel-btn" data-id="${b.id}">Cancel</button>` : ""}
+      </div>
     </div>
   `
     )
     .join("");
+
+  document.querySelectorAll(".admin-cancel-btn").forEach((btn) =>
+    btn.addEventListener("click", () => openAdminCancelModal(btn.dataset.id))
+  );
 }
+
+/* ---- Cancel & refund modal ---- */
+let adminCancelTargetId = null;
+const adminCancelModal = document.querySelector("#admin-cancel-modal");
+const adminCancelDetails = document.querySelector("#admin-cancel-details");
+const adminCancelConfirmBtn = document.querySelector("#admin-cancel-confirm-btn");
+
+function openAdminCancelModal(id) {
+  const booking = currentBookings.find((b) => b.id === id);
+  if (!booking) return;
+
+  adminCancelTargetId = id;
+  const refund = calculateRefund(booking.checkIn, new Date(), booking.total);
+
+  adminCancelDetails.innerHTML = `
+    <p><strong>${booking.name}</strong> — ${booking.roomName}</p>
+    <p>${booking.checkIn} to ${booking.checkOut}</p>
+    <p style="margin-top:var(--space-sm)">
+      ${refund.label}: <strong>₹${refund.amount.toLocaleString("en-IN")}</strong> of ₹${booking.total.toLocaleString("en-IN")}
+    </p>
+  `;
+  adminCancelModal.classList.add("open");
+}
+
+document.querySelector("#admin-cancel-modal-close")?.addEventListener("click", () => {
+  adminCancelModal.classList.remove("open");
+});
+adminCancelModal?.addEventListener("click", (e) => {
+  if (e.target === adminCancelModal) adminCancelModal.classList.remove("open");
+});
+
+adminCancelConfirmBtn?.addEventListener("click", async () => {
+  const booking = currentBookings.find((b) => b.id === adminCancelTargetId);
+  if (!booking) return;
+
+  const refund = calculateRefund(booking.checkIn, new Date(), booking.total);
+
+  booking.status = "cancelled";
+  booking.refundAmount = refund.amount;
+  booking.refundStatus = "initiated";
+
+  if (!DEMO_MODE) {
+    await db.collection("bookings").doc(booking.id).update({
+      status: "cancelled",
+      refundAmount: refund.amount,
+      refundStatus: "initiated", // replace with your payment gateway's refund call — see checkout.js's payment stub
+    });
+
+    // Free up the dates on the public calendar — this booking's
+    // dates were only unavailable because of this bookedRanges entry.
+    if (booking.bookedRangeId) {
+      await db.collection("bookedRanges").doc(booking.bookedRangeId).delete();
+    }
+  }
+
+  adminCancelModal.classList.remove("open");
+  renderBookingsList();
+});
 
 /* ============================================================
    ROOM SERVICE ORDERS
@@ -222,15 +296,20 @@ async function loadOrders() {
    AVAILABILITY — block/unblock dates per room
    ============================================================ */
 
-// Dates the admin has manually blocked, per room. In demo mode this
-// resets on page reload; with Firestore connected, each room's list
-// is loaded from and saved to roomAvailability/{roomId}.
+// Dates the admin has manually blocked, per room. Loaded from and
+// saved to roomAvailability/{roomId}.blockedDates.
 const adminBlockedDates = { standard: [], deluxe: [], suite: [] };
+
+// Real guest-booked dates, per room — fetched from bookedRanges
+// (written by checkout.js) whenever the selected room changes. Not
+// editable here; cancel the booking via the Bookings tab instead.
+const adminGuestBookedDates = { standard: [], deluxe: [], suite: [] };
 
 const adminCalState = {
   roomId: "standard",
   viewYear: new Date().getFullYear(),
   viewMonth: new Date().getMonth(),
+  loading: false,
 };
 
 const adminRoomSelect = document.querySelector("#admin-room-select");
@@ -246,18 +325,26 @@ async function initAvailabilityTab() {
   if (!DEMO_MODE) {
     try {
       for (const roomId of Object.keys(adminBlockedDates)) {
-        const doc = await db.collection("roomAvailability").doc(roomId).get();
-        adminBlockedDates[roomId] = doc.exists ? doc.data().blockedDates || [] : [];
+        adminBlockedDates[roomId] = await fetchAdminBlockedDates(roomId);
       }
     } catch (err) {
       adminAvailabilityNote.textContent = "Couldn't load saved blocked dates — showing this session only.";
     }
   }
+  await loadGuestBookedDates(adminCalState.roomId);
   renderAdminCalendar();
 }
 
-adminRoomSelect?.addEventListener("change", (e) => {
+async function loadGuestBookedDates(roomId) {
+  adminCalState.loading = true;
+  renderAdminCalendar();
+  adminGuestBookedDates[roomId] = await fetchGuestBookedDates(roomId);
+  adminCalState.loading = false;
+}
+
+adminRoomSelect?.addEventListener("change", async (e) => {
   adminCalState.roomId = e.target.value;
+  await loadGuestBookedDates(adminCalState.roomId);
   renderAdminCalendar();
 });
 
@@ -281,8 +368,14 @@ adminCalNext?.addEventListener("click", () => {
 
 function renderAdminCalendar() {
   if (!adminCalGrid) return;
+
+  if (adminCalState.loading) {
+    adminCalGrid.innerHTML = `<p style="grid-column:1/-1;color:var(--ink-soft);font-size:var(--step--1);padding:var(--space-md) 0">Loading…</p>`;
+    return;
+  }
+
   const { viewYear, viewMonth, roomId } = adminCalState;
-  const guestBooked = new Set(getUnavailableDates(roomId)); // real/demo guest bookings — not editable here
+  const guestBooked = new Set(adminGuestBookedDates[roomId]);
   const blocked = new Set(adminBlockedDates[roomId]);
 
   adminCalMonthLabel.textContent = `${ADMIN_MONTH_NAMES[viewMonth]} ${viewYear}`;

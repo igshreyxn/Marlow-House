@@ -35,6 +35,19 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.admin == true;
     }
 
+    // Real booked date-ranges per room — dates only, no guest info.
+    // This is what makes a date actually unavailable to other guests
+    // on the public booking calendar. Written by checkout.js when a
+    // booking is confirmed. Public read (the calendar needs it),
+    // create by any signed-in guest completing a booking, but only an
+    // admin can edit/remove an entry directly (e.g. after cancelling
+    // a booking via the admin dashboard).
+    match /bookedRanges/{rangeId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
     // Guest profiles created at sign-up (name + email) — a guest can
     // read/write only their own profile document (keyed by their UID).
     match /guests/{uid} {
@@ -48,11 +61,11 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Room service orders — no account required to place one (see
-    // js/room-service-checkout.js), so creation is open, but only an
-    // admin can read the full list or change an order's status.
+    // Room service orders — a guest must be signed in to place one
+    // (see js/room-service-checkout.js), but only an admin can read
+    // the full list or change an order's status.
     match /roomServiceOrders/{orderId} {
-      allow create: if true;
+      allow create: if isSignedIn();
       allow read, update, delete: if isAdmin();
     }
 

@@ -53,41 +53,64 @@ function calculateRefund(checkInDate, cancelDate, totalAmount) {
   return { percent: 0, amount: 0, label: "No refund (within 24 hours of check-in)" };
 }
 
-// Demo booked-dates data (ISO 'YYYY-MM-DD'), per room. Simulates what a
-// real Firestore query would return.
-//
-// TO GO LIVE: replace this object and getUnavailableDates() with a
-// Firestore read, e.g.:
-//
-//   async function getUnavailableDates(roomId) {
-//     const snap = await db.collection('bookings')
-//       .where('roomId', '==', roomId)
-//       .where('status', '==', 'confirmed')
-//       .get();
-//     const dates = [];
-//     snap.forEach(doc => {
-//       const { checkIn, checkOut } = doc.data();
-//       let d = new Date(checkIn);
-//       const end = new Date(checkOut);
-//       while (d < end) {
-//         dates.push(d.toISOString().slice(0, 10));
-//         d.setDate(d.getDate() + 1);
-//       }
-//     });
-//     return dates;
-//   }
+// Demo booked-dates data (ISO 'YYYY-MM-DD'), per room — used only when
+// Firebase isn't configured yet (DEMO_MODE), so the calendar has
+// something to show before Firestore is connected.
 const DEMO_UNAVAILABLE_DATES = {
   standard: ["2026-09-10", "2026-09-11", "2026-09-12", "2026-09-22", "2026-09-23"],
   deluxe: ["2026-09-05", "2026-09-06", "2026-09-18", "2026-09-19", "2026-09-20"],
   suite: ["2026-09-14", "2026-09-15", "2026-09-16", "2026-09-30"],
 };
 
-function getUnavailableDates(roomId) {
-  return DEMO_UNAVAILABLE_DATES[roomId] || [];
-}
-
 function toISODate(date) {
   return date.toISOString().slice(0, 10);
+}
+
+function expandDateRange(checkIn, checkOut) {
+  const dates = [];
+  let d = new Date(checkIn);
+  const end = new Date(checkOut);
+  while (d < end) {
+    dates.push(toISODate(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return dates;
+}
+
+// Real, confirmed guest bookings for a room — read from the public
+// bookedRanges collection (dates only, no guest info; see
+// firestore.rules). This is what checkout.js writes to when a booking
+// is confirmed, and it's what makes a date actually unavailable to
+// other guests.
+async function fetchGuestBookedDates(roomId) {
+  if (!db) return DEMO_UNAVAILABLE_DATES[roomId] || [];
+  const snap = await db.collection("bookedRanges").where("roomId", "==", roomId).get();
+  const dates = [];
+  snap.forEach((doc) => {
+    const { checkIn, checkOut } = doc.data();
+    dates.push(...expandDateRange(checkIn, checkOut));
+  });
+  return dates;
+}
+
+// Dates the admin has manually blocked for a room (maintenance, holds,
+// etc.) — read from roomAvailability/{roomId}.blockedDates. Written by
+// admin.js's Availability tab.
+async function fetchAdminBlockedDates(roomId) {
+  if (!db) return [];
+  const doc = await db.collection("roomAvailability").doc(roomId).get();
+  return doc.exists ? doc.data().blockedDates || [] : [];
+}
+
+// Combines both sources into the full set of unavailable dates for a
+// room. Use this when you just need "is this date bookable" and don't
+// need to distinguish why.
+async function fetchAllUnavailableDates(roomId) {
+  const [guestBooked, adminBlocked] = await Promise.all([
+    fetchGuestBookedDates(roomId),
+    fetchAdminBlockedDates(roomId),
+  ]);
+  return [...new Set([...guestBooked, ...adminBlocked])];
 }
 
 // Reads the booking draft handed off from the date-selection modal.

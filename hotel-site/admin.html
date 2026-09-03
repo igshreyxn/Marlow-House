@@ -59,9 +59,7 @@
       <div class="admin-panel active" data-panel="bookings">
         <h2 class="checkout-section-title" style="margin-top:0">Bookings</h2>
         <div id="admin-bookings-list"></div>
-      </div>
-
-      <!-- Room Service -->
+      </div>      <!-- Room Service -->
       <div class="admin-panel" data-panel="room-service">
         <h2 class="checkout-section-title" style="margin-top:0">Room Service Orders</h2>
         <div id="admin-orders-list"></div>
@@ -114,6 +112,16 @@
 
   </div>
 </section>
+
+<!-- Cancel & refund confirmation modal -->
+<div class="modal-overlay" id="admin-cancel-modal">
+  <div class="modal">
+    <button class="modal-close" id="admin-cancel-modal-close" aria-label="Close">×</button>
+    <h2>Cancel this booking?</h2>
+    <div id="admin-cancel-details" style="margin-top:var(--space-sm)"></div>
+    <button id="admin-cancel-confirm-btn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md)">Cancel Booking & Initiate Refund</button>
+  </div>
+</div>
 
 <script src="js/shared.js"></script>
 <script src="js/admin.js"></script>

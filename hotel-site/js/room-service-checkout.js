@@ -2,15 +2,12 @@
   Room Service checkout controller.
   ------------------------------------------------------------------
   Reads the cart handed off from room-service.html (sessionStorage),
-  renders the order summary, then handles delivery details and
-  payment on one page — same pattern as js/checkout.js for room
-  bookings, but delivery details (room number, phone, notes) instead
-  of guest details + account creation, since a room service order
-  doesn't need its own account.
+  renders the order summary, then handles delivery details, account
+  sign-in/creation, and payment on one page — same pattern as
+  js/checkout.js for room bookings.
 
-  Depends on js/shared.js being loaded first (for auth/db, used only
-  if you want to require sign-in or log orders against a guest's
-  account — neither is required for this to work).
+  Depends on js/shared.js being loaded first (auth, db,
+  getFriendlyAuthError).
   ------------------------------------------------------------------
 */
 
@@ -81,7 +78,10 @@ form?.addEventListener("submit", async (e) => {
   const roomNumber = data.get("room-number")?.trim();
   const phone = data.get("phone")?.trim();
   const message = data.get("message")?.trim() || "";
+  const email = data.get("email")?.trim();
+  const password = data.get("password");
   const paymentMethod = data.get("payment-method");
+  const accountError = document.querySelector("#account-error");
 
   if (!roomNumber || !phone) {
     orderError.textContent = "Room number and phone number are required.";
@@ -90,22 +90,45 @@ form?.addEventListener("submit", async (e) => {
   }
   orderError.classList.remove("show");
 
+  if (!password || password.length < 8) {
+    accountError.textContent = "Password must be at least 8 characters.";
+    accountError.classList.add("show");
+    return;
+  }
+  accountError.classList.remove("show");
+
   const submitBtn = document.querySelector("#confirm-order-btn");
   submitBtn.disabled = true;
   submitBtn.textContent = "Processing…";
 
   try {
+    // 1. Sign in, or create an account if this email is new.
+    if (auth) {
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (authErr) {
+        if (authErr.code === "auth/email-already-in-use") {
+          await auth.signInWithEmailAndPassword(email, password);
+        } else {
+          throw authErr;
+        }
+      }
+    }
+
+    // 2. Charge payment.
     // Replace this block with your payment gateway's checkout call
     // (Razorpay/Stripe/etc) for "card" and "upi". "room-charge" needs
     // no payment call — it just gets added to the guest's folio.
 
-    if (typeof db !== "undefined" && db) {
+    // 3. Store the order.
+    if (db) {
       await db.collection("roomServiceOrders").add({
         items: draft.items,
         total: draft.total,
         roomNumber,
         phone,
         message,
+        email,
         paymentMethod,
         status: "received",
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -117,8 +140,8 @@ form?.addEventListener("submit", async (e) => {
   } catch (err) {
     submitBtn.disabled = false;
     submitBtn.textContent = "Confirm & Pay";
-    orderError.textContent = err.code ? getFriendlyAuthError(err) : "Something went wrong. Please try again.";
-    orderError.classList.add("show");
+    accountError.textContent = getFriendlyAuthError(err);
+    accountError.classList.add("show");
   }
 });
 
